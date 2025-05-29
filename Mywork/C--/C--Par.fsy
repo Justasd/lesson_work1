@@ -1,0 +1,38 @@
+%start program
+%%
+program:
+    | list(func_decl) { Prog(List.rev $1) }
+
+func_decl:
+    | type_specifier ID LPAREN RPAREN LBRACE list(stmt) RBRACE {
+        { RetType = $1; Name = $2; Params = []; Body = List.rev $6 }
+    }
+    | type_specifier ID LPAREN params RPAREN LBRACE list(stmt) RBRACE {
+        { RetType = $1; Name = $2; Params = $4; Body = List.rev $7 }
+    }
+
+params:
+    | separated_list(COMMA, param) { $1 }
+
+param:
+    | type_specifier ID { ($1, $2) }
+
+type_specifier:
+    | INT { TInt }
+    | FLOAT { TFloat }
+
+stmt:
+    | expr SEMI { ExprStmt $1 }
+    | RETURN expr SEMI { Return $2 }
+    | IF LPAREN expr RPAREN stmt ELSE stmt { If($3, $5, $7) }
+    | WHILE LPAREN expr RPAREN stmt { While($3, $5) }
+    | LBRACE list(stmt) RBRACE { Block(List.rev $2) }
+
+expr:
+    | INT_LIT { IntLit $1 }
+    | ID { Var $1 }
+    | expr OP expr { BinOp($2, $1, $3) }
+    | ID LPAREN args RPAREN { Call($1, $3) }
+
+args:
+    | list separated by COMMA { $1 }

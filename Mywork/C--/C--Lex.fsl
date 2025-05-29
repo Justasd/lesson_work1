@@ -1,0 +1,33 @@
+{
+    open CMinusMinusPar
+    open Printf
+}
+
+let digit = ['0'-'9']
+let whitespace = [' ' '\t' '\n']+
+
+rule token = parse
+    | whitespace { token lexbuf }
+    | "int" { INT }
+    | "float" { FLOAT }
+    | "return" { RETURN }
+    | "if" { IF }
+    | "else" { ELSE }
+    | "while" { WHILE }
+    | '+' | '-' | '*' | '/' { OP(Lexing.lexeme lexbuf) }
+    | "==" { OP("==") }
+    | "!=" { OP("!=") }
+    | "<=" { OP("<=") }
+    | ">=" { OP(">=") }
+    | '<' { OP("<") }
+    | '>' { OP(">") }
+    | '=' { OP("=") }
+    | '(' { LPAREN }
+    | ')' { RPAREN }
+    | '{' { LBRACE }
+    | '}' { RBRACE }
+    | ';' { SEMI }
+    | ',' { COMMA }
+    | ['a'-'z']+ as id { ID(id) }
+    | digit+ as num { INT_LIT(int num) }
+    | eof { EOF }
